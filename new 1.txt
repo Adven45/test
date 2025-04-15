@@ -1,0 +1,76 @@
+s babyDOB=""
+	s babyDOB=dtfrom-1
+	f  s babyDOB=$O(^PAPERi("DOB2",babyDOB))  q:babyDOB=""  q:babyDOB>dtto  d
+    . s paperRowid="" f  s paperRowid=$O(^PAPERi("DOB2",babyDOB,paperRowid)) q:paperRowid=""  d
+    . . s paadmRowid=$o(^PAPERdr(paperRowid,"ADM","I",""))
+    . . i paadmRowid="" q 
+    . . q:hosp'=$$GetHospCodeByPAADM^UMHSCommon(paadmRowid)
+    . . //q:hospID'=$p($g(^PAPER(paperRowid,"PER",5)),"^",19)			//Added by vimal
+    . . s regno=$p($g(^PAPER(paperRowid,"PAT",1)),"^")
+    . . s dob=$p(^PAPER((paperRowid),"ALL"),"^",6)
+    . . s sexDr=$p(^PAPER((paperRowid),"ALL"),"^",7)
+    . . s n1=$p($g(^PAPER(paperRowid,"ALL")),"^",2)
+    . . s n2=$p($g(^PAPER(paperRowid,"ALL")),"^",19)
+    . . s n3=$p($g(^PAPER(paperRowid,"ALL")),"^",1)
+    . . s name=n1_$s(n2="":"",1:" "_n2)_$s(n3="":"",1:" "_n3)
+    . . s age=$$GetAge(dob)
+    . . i age="" s age="0 DAYS"
+    . . s sex=$p(^CT("SEX",sexDr),"^",2)
+    . . s ipdno=$p(^PAADM(paadmRowid),"^",81)
+    . . s NOKID=$p($get(^PAPER(+paperRowid,"NOK")),"^",4)
+ 	. . s Relation="" if NOKID'="" s Relation=$p(^CT("RLT",NOKID),"^",2)
+ 	. . s RelationName=$p($get(^PAPER(+paperRowid,"NOK")),"^",1)
+ 	. . set MobileNo=$p(^PAPER(paperRowid,"PER",4),"^",21)
+    . . s admDate=$p(^PAADM(paadmRowid),"^",6)  
+    . . //if admDate'=babyDOB quit
+    . . s admDate=$ZDT(admDate,4)	
+    . . s discDate=$p(^PAADM(paadmRowid),"^",17)  
+    . . if $g(discDate)'="" s discDate=$ZDT(discDate,4)	
+    . . s admCPdr=$p(^PAADM(paadmRowid),"^",9) ;PAADM_AdmDocCodeDR
+    . . s admDEPdr=$p(^PAADM(paadmRowid),"^",4) ; PAADM_DepCode_DR
+    . . s admDoc=$p($g(^CTPCP(+admCPdr,1)),"^",2)
+    . . s admDEP=$p($g(^CTLOC(+admDEPdr)),"^",2)
+    . . s bedid="",wardid=""
+    . . s bedid=$p(^PAADM(paadmRowid),"^",73) 
+    . . s wardid=$p(^PAADM(paadmRowid),"^",70) 
+    . . s bed="",ward="",CurrentBed=""
+    . . s dob = $ZDT($g(dob),4)
+    . . i wardid'=""  d
+  	. . . i $d(^PAWARD(wardid))>0 d
+  	. . . . s CurrentWard=$p(^PAWARD(wardid),"^",2)
+  	. . i bedid'="" d
+  	. . . s ward=$p(^PAWARD($p(bedid,"||",1)),"^",2)
+  	. . . i $d(^PAWARD($p(bedid,"||",1),"BED",$p(bedid,"||",2))) d
+ 	. . . . s bed=$p(^PAWARD($p(bedid,"||",1),"BED",$p(bedid,"||",2)),"^",1)
+ 	. . i (bedid="")&&(wardid'="") && (CurrentWard'="") d
+ 	. . . s ward=CurrentWard_"/"_" W.A."
+    . . s mrnno="" s mrnno=$$GetMRNnoByPaperDr^UMHSCommon(paperRowid)
+    . . s madmid="" s madmid=$p(^PAADM(paadmRowid),"^",75)
+    . . s motherdet="" if madmid'="" s motherdet=$$GetPatDetails(madmid)
+    . . s motherhosp="" s motherhosp=$p(motherdet,"^",1)
+    . . set Mradmid="" set Mradmid=$p(^PAADM(paadmRowid),"^",61)
+    . . set mrwght="" set mrwght=$p(^MR(Mradmid,"PRO",1),"^",27) 
+    . . ;w $g(ipdno)_"^"_$g(regno)_"^"_$g(name)_"^"_$g(age)_"^"_$g(sex)_"^"_$g(admDoc)_"^"_$g(admDEP)_"^"_$g(ward)_"^"_$g(admDate)_"^"_$g(discDate)_"^"_$g(bed)_"^"_$ZDT($g(dob),4),!
+    . . ;s zBirth($J,$i(zBirth($J)))=$g(ipdno)_"^"_$g(regno)_"^"_$g(name)_"^"_$g(age)_"^"_$g(sex)_"^"_$g(admDoc)_"^"_$g(admDEP)_"^"_$g(ward)_"^"_$g(admDate)_"^"_$g(discDate)_"^"_$g(bed)_"^"_$ZDT($g(dob),4)
+    . . w "<tr>" 
+    . . w "<td>"_$i(l)_"</td>"
+    . . w "<td>"_$g(admDate)_"</td>"
+    . . w "<td>"_$g(ipdno)_"</td>"
+    . . w "<td>"_$g(regno )_"</td>"
+    . . w "<td>"_$g(name)_"</td>"
+    . . w "<td>"_$g(sex)_"</td>"
+    . . w "<td>"_$g(dob)_"</td>"
+    . . w "<td>"_$g(age)_"</td>"
+    . . w "<td>"_$g(ward)_"</td>"
+    . . w "<td>"_$g(bed)_"</td>"   
+    . . w "<td>"_$g(mrnno)_"</td>"
+    . . w "<td>"_$g(motherhosp)_"</td>"
+    . . w "<td>"_$g(MobileNo)_"</td>"
+    . . w "<td>"_$g(Relation)_"</td>"
+    . . w "<td>"_$g(RelationName)_"</td>"
+    . . w "<td>"_$g(mrwght)_"</td>"
+    . . w "<td>"_$g(babyDOB)_"</td>"
+    . . w "</tr>",!
+     w "</table>" 
+   
+    q ID

@@ -1,0 +1,25 @@
+ffrom selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+import time
+
+# Specify the path to the chromedriver executable
+chromedriver_path = r"D:\BirthR\chromedriver-win64\chromedriver.exe"
+
+# Set up the ChromeDriver service
+service = Service(chromedriver_path)
+
+# Initialize the Chrome WebDriver
+driver = webdriver.Chrome(service=service)
+
+try:
+    driver.maximize_window()
+    driver.delete_all_cookies()
+    driver.get('https://www.google.com/')
+    search_box = driver.find_element("name", "q")
+    search_box.send_keys("javapoint")
+    time.sleep(3)
+    search_box.send_keys(Keys.ENTER)
+    time.sleep(3)
+finally:
+    driver.close()

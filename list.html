@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <th>
+                Patient Name
+            </th>
+            <th>
+                MH No 
+            </th>
+        </tr>
+        <tr>
+            <td>
+                Naresh
+            </td>
+            <td>
+                MH00012323
+            </td>  
+        </tr>
+        <tr>
+            <td>
+                Naresh babu
+            </td>
+            <td>
+                MH0001232543
+            </td>  
+        </tr>
+        <tr>
+            <td>
+                Sanjay
+            </td>
+            <td>
+                MH000123211
+            </td>  
+        </tr>
+    </table>
+    <label>Patient Name</label>
+    <input type="text" name="name" id="name">
+    <label>MH NO</label>
+    <input type="text" name="ID" id="ID">
+    <button type="button" id="add">Search</button>
+    <label>from date</label>
+    <input type="date" name="fdate" id="fdate">
+    <label>to date</label>
+    <input type="date" name="todate" id="todate">
+
+     <script>
+      document.getElementById('add').addEventListener('click', function() {
+        let inputName = document.getElementById('name').value.toLowerCase();  // Corrected to toLowerCase()
+        let rows = document.querySelectorAll('table tr');
+        let found = false;
+
+        for (let i = 1; i < rows.length; i++) {  // Start from index 1 to skip the header row
+            let cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 0) {
+                let patientname = cells[0].textContent.toLowerCase();  // Make sure the patient name is in lowercase
+                if (patientname.includes(inputName)) {
+                    rows[i].style.display = "";  // Show the row
+                    found = true;
+                } else {
+                    rows[i].style.display = "none";  // Hide the row
+                }
+            }
+        }
+
+        if (!found) {  // Corrected condition to check if no matching patient was found
+            alert("No patient found");
+        }
+
+      });
+    function onload(){
+        
+    }
+    </script>
+
+
+    <script>
+
+</script>
+</body>
+</html>
