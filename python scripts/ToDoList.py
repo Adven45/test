@@ -21,3 +21,4 @@ complete_task(1)
 complete_task(2)
 show_task()
 a=1
+b=1
